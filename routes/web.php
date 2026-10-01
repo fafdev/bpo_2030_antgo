@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BusinessPartnerController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('users/import', [UserController::class, 'import'])->name('users.import');
+
+    Route::get('business-partners', [BusinessPartnerController::class, 'index'])->name('business-partners.index');
+    Route::post('business-partners', [BusinessPartnerController::class, 'store'])->name('business-partners.store');
+    Route::patch('business-partners/{businessPartner}', [BusinessPartnerController::class, 'update'])->name('business-partners.update');
+    Route::delete('business-partners/{businessPartner}', [BusinessPartnerController::class, 'destroy'])->name('business-partners.destroy');
 });
 
 require __DIR__.'/settings.php';
