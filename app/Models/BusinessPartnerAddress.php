@@ -27,4 +27,14 @@ class BusinessPartnerAddress extends Model
     {
         return $this->belongsTo(BusinessPartner::class);
     }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_code', 'code');
+    }
+
+    public function postalcode(): BelongsTo
+    {
+        return $this->belongsTo(Postalcode::class, 'postal_code', 'code');
+    }
 }

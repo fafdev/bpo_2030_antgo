@@ -35,8 +35,15 @@ type BusinessPartner = {
     addresses: Address[];
 };
 
+type CountryOption = {
+    code: string;
+    name: string;
+};
+
 type Props = {
     businessPartners: BusinessPartner[];
+    countries: CountryOption[];
+    postalCodeCities: Record<string, string>;
 };
 
 type BusinessPartnerPayload = {
@@ -145,7 +152,74 @@ const emptyAddress = (): Address => ({
     is_primary: true,
 });
 
-export default function BusinessPartnersIndex({ businessPartners }: Props) {
+const spanishPostalProvinceByPrefix: Record<string, string> = {
+    '01': 'Araba/Alava',
+    '02': 'Albacete',
+    '03': 'Alicante',
+    '04': 'Almeria',
+    '05': 'Avila',
+    '06': 'Badajoz',
+    '07': 'Illes Balears',
+    '08': 'Barcelona',
+    '09': 'Burgos',
+    '10': 'Caceres',
+    '11': 'Cadiz',
+    '12': 'Castellon',
+    '13': 'Ciudad Real',
+    '14': 'Cordoba',
+    '15': 'A Coruna',
+    '16': 'Cuenca',
+    '17': 'Girona',
+    '18': 'Granada',
+    '19': 'Guadalajara',
+    '20': 'Gipuzkoa',
+    '21': 'Huelva',
+    '22': 'Huesca',
+    '23': 'Jaen',
+    '24': 'Leon',
+    '25': 'Lleida',
+    '26': 'La Rioja',
+    '27': 'Lugo',
+    '28': 'Madrid',
+    '29': 'Malaga',
+    '30': 'Murcia',
+    '31': 'Navarra',
+    '32': 'Ourense',
+    '33': 'Asturias',
+    '34': 'Palencia',
+    '35': 'Las Palmas',
+    '36': 'Pontevedra',
+    '37': 'Salamanca',
+    '38': 'Santa Cruz de Tenerife',
+    '39': 'Cantabria',
+    '40': 'Segovia',
+    '41': 'Sevilla',
+    '42': 'Soria',
+    '43': 'Tarragona',
+    '44': 'Teruel',
+    '45': 'Toledo',
+    '46': 'Valencia',
+    '47': 'Valladolid',
+    '48': 'Bizkaia',
+    '49': 'Zamora',
+    '50': 'Zaragoza',
+    '51': 'Ceuta',
+    '52': 'Melilla',
+};
+
+const getSpanishProvinceFromPostalCode = (postalCode: string): string | undefined => {
+    if (postalCode.length < 2) {
+        return undefined;
+    }
+
+    return spanishPostalProvinceByPrefix[postalCode.slice(0, 2)];
+};
+
+export default function BusinessPartnersIndex({
+    businessPartners,
+    countries,
+    postalCodeCities,
+}: Props) {
     const [editingBusinessPartner, setEditingBusinessPartner] =
         useState<BusinessPartner | null>(null);
 
@@ -760,6 +834,34 @@ export default function BusinessPartnersIndex({ businessPartners }: Props) {
                                                                     onChange={(event) => {
                                                                         const nextAddresses =
                                                                             [...currentAddresses];
+                                                                        const postalCode =
+                                                                            event.target.value;
+                                                                        const normalizedPostalCode =
+                                                                            postalCode.replace(
+                                                                                /[^0-9]/g,
+                                                                                '',
+                                                                            );
+                                                                        const cityFromPostalCode =
+                                                                            nextAddresses[
+                                                                                addressIndex
+                                                                            ]
+                                                                                .country_code ===
+                                                                            'ES'
+                                                                                ? postalCodeCities[
+                                                                                      normalizedPostalCode
+                                                                                  ]
+                                                                                : undefined;
+                                                                        const provinceFromPostalCode =
+                                                                            nextAddresses[
+                                                                                addressIndex
+                                                                            ]
+                                                                                .country_code ===
+                                                                            'ES'
+                                                                                ? getSpanishProvinceFromPostalCode(
+                                                                                      normalizedPostalCode,
+                                                                                  )
+                                                                                : undefined;
+
                                                                         nextAddresses[
                                                                             addressIndex
                                                                         ] = {
@@ -767,7 +869,17 @@ export default function BusinessPartnersIndex({ businessPartners }: Props) {
                                                                                 addressIndex
                                                                             ],
                                                                             postal_code:
-                                                                                event.target.value,
+                                                                                normalizedPostalCode,
+                                                                            city:
+                                                                                cityFromPostalCode ??
+                                                                                nextAddresses[
+                                                                                    addressIndex
+                                                                                ].city,
+                                                                            state:
+                                                                                provinceFromPostalCode ??
+                                                                                nextAddresses[
+                                                                                    addressIndex
+                                                                                ].state,
                                                                         };
                                                                         updateAddresses(
                                                                             nextAddresses,
@@ -785,28 +897,77 @@ export default function BusinessPartnersIndex({ businessPartners }: Props) {
 
                                                             <div className="grid gap-2">
                                                                 <Label>Pais (ISO-2)</Label>
-                                                                <Input
-                                                                    value={
-                                                                        address.country_code
-                                                                    }
+                                                                <select
+                                                                    value={address.country_code}
                                                                     onChange={(event) => {
                                                                         const nextAddresses =
                                                                             [...currentAddresses];
+                                                                        const currentAddress =
+                                                                            nextAddresses[
+                                                                                addressIndex
+                                                                            ];
+                                                                        const countryCode =
+                                                                            event.target.value;
+                                                                        const previousAutoProvince =
+                                                                            currentAddress.country_code ===
+                                                                            'ES'
+                                                                                ? getSpanishProvinceFromPostalCode(
+                                                                                      currentAddress.postal_code ??
+                                                                                          '',
+                                                                                  )
+                                                                                : undefined;
+                                                                        const cityFromPostalCode =
+                                                                            countryCode === 'ES'
+                                                                                ? postalCodeCities[
+                                                                                      currentAddress
+                                                                                          .postal_code ??
+                                                                                          ''
+                                                                                  ]
+                                                                                : undefined;
+                                                                        const provinceFromPostalCode =
+                                                                            countryCode === 'ES'
+                                                                                ? getSpanishProvinceFromPostalCode(
+                                                                                      currentAddress
+                                                                                          .postal_code ??
+                                                                                          '',
+                                                                                  )
+                                                                                : undefined;
+                                                                        const nextState =
+                                                                            countryCode === 'ES'
+                                                                                ? provinceFromPostalCode ??
+                                                                                  currentAddress.state
+                                                                                : currentAddress.state ===
+                                                                                    previousAutoProvince
+                                                                                  ? ''
+                                                                                  : currentAddress.state;
+
                                                                         nextAddresses[
                                                                             addressIndex
                                                                         ] = {
-                                                                            ...nextAddresses[
-                                                                                addressIndex
-                                                                            ],
+                                                                            ...currentAddress,
                                                                             country_code:
-                                                                                event.target.value,
+                                                                                countryCode,
+                                                                            city:
+                                                                                cityFromPostalCode ??
+                                                                                currentAddress.city,
+                                                                            state: nextState,
                                                                         };
                                                                         updateAddresses(
                                                                             nextAddresses,
                                                                         );
                                                                     }}
+                                                                    className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
                                                                     required
-                                                                />
+                                                                >
+                                                                    {countries.map((country) => (
+                                                                        <option
+                                                                            key={country.code}
+                                                                            value={country.code}
+                                                                        >
+                                                                            {country.code} - {country.name}
+                                                                        </option>
+                                                                    ))}
+                                                                </select>
                                                                 <InputError
                                                                     message={
                                                                         errors[

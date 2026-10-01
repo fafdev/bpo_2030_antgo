@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(CountrySeeder::class);
+        $this->call(PostalcodeSeeder::class);
+
         $this->call(RolSeeder::class);
 
         $adminRol = Rol::query()->where('code', 'admin')->firstOrFail();

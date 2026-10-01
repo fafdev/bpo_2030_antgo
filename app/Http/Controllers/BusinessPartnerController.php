@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBusinessPartnerRequest;
 use App\Http\Requests\UpdateBusinessPartnerRequest;
 use App\Models\BusinessPartner;
+use App\Models\Country;
+use App\Models\Postalcode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -36,6 +38,11 @@ class BusinessPartnerController extends Controller
                     'phone',
                     'mobile',
                 ]),
+            'countries' => Country::query()->orderBy('name')->get(['code', 'name']),
+            'postalCodeCities' => Postalcode::query()
+                ->whereNotNull('city')
+                ->where('city', '!=', '')
+                ->pluck('city', 'code'),
         ]);
     }
 

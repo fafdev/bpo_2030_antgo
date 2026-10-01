@@ -3,7 +3,9 @@ import {
     BookOpen,
     Building2,
     FolderGit2,
+    Globe,
     LayoutGrid,
+    MapPinned,
     Shield,
     Users,
 } from 'lucide-react';
@@ -22,6 +24,8 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as businessPartnersIndex } from '@/routes/business-partners';
+import { index as countriesIndex } from '@/routes/countries';
+import { index as postalcodesIndex } from '@/routes/postalcodes';
 import { index as rolsIndex } from '@/routes/rols';
 import { index as usersIndex } from '@/routes/users';
 import type { NavItem } from '@/types';
@@ -46,6 +50,16 @@ const mainNavItems: NavItem[] = [
         title: 'Business Partners',
         href: businessPartnersIndex(),
         icon: Building2,
+    },
+    {
+        title: 'Countries',
+        href: countriesIndex(),
+        icon: Globe,
+    },
+    {
+        title: 'Postal Codes (ES)',
+        href: postalcodesIndex(),
+        icon: MapPinned,
     },
 ];
 
